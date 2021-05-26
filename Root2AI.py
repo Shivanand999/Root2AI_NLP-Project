@@ -61,12 +61,10 @@ xvalid_tfidf_ngram_chars =  tfidf_vect_ngram_chars.transform(valid_x)
 
 
 
-
+# Refer ( "https://www.kaggle.com/mmanishh/fast-text-word-embeddings" ) for Word-Embedding vectors file
 # load the pre-trained word-embedding vectors 
 embeddings_index = {}
-for i, line in enumerate(open('e:/Dell PC/Downloads/360 Digi TMG/Projects/Artificial Intelligence/Project_Root2AI 
-
-Tech/wiki-news-300d-1M.vec', encoding="utf8")):
+for i, line in enumerate(open('e:/Dell PC/Downloads/360 Digi TMG/Projects/Artificial Intelligence/Project_Root2AI Tech/wiki-news-300d-1M.vec', encoding="utf8")):
     values = line.split()
     embeddings_index[values[0]] = np.asarray(values[1:], dtype='float32')
 
