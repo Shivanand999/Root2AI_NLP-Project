@@ -1,4 +1,6 @@
 
+# libraries for dataset preparation, feature engineering, model training
+
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
@@ -9,16 +11,18 @@ import textblob, string
 import xgboost
 from sklearn import model_selection, preprocessing, linear_model, naive_bayes, metrics, svm
 from sklearn import decomposition, ensemble
-from keras import layers, models, optimizers
 
 
-data = pd.read_csv("e:/Dell PC/Downloads/360 Digi TMG/Projects/Artificial Intelligence/Project_Root2AI Tech/root2ai - 
 
-Data.csv")
+
+data = pd.read_csv("e:/Dell PC/Downloads/360 Digi TMG/Projects/Artificial Intelligence/Project_Root2AI Tech/root2ai - Data.csv")
 
 data.isna().sum()
 data = data.dropna()
 
+
+
+# Next, we will split the dataset into training and validation sets so that we can train and test classifier. Also, we will encode our target column so that it can be used in machine learning models.
 
 # split the dataset into training and validation datasets 
 train_x, valid_x, train_y, valid_y = train_test_split(data["Text"], data["Target"])
@@ -52,17 +56,25 @@ xtrain_tfidf_ngram =  tfidf_vect_ngram.transform(train_x)
 xvalid_tfidf_ngram =  tfidf_vect_ngram.transform(valid_x)
 
 # characters level tf-idf
-tfidf_vect_ngram_chars = TfidfVectorizer(analyzer='char', token_pattern=r'\w{1,}', ngram_range=(2,3), 
-
-max_features=5000)
+tfidf_vect_ngram_chars = TfidfVectorizer(analyzer='char', token_pattern=r'\w{1,}', ngram_range=(2,3), max_features=5000)
 tfidf_vect_ngram_chars.fit(data["Text"])
 xtrain_tfidf_ngram_chars =  tfidf_vect_ngram_chars.transform(train_x) 
 xvalid_tfidf_ngram_chars =  tfidf_vect_ngram_chars.transform(valid_x) 
 
 
 
+# Following snnipet shows how to use pre-trained word embeddings in the model. There are four essential steps:
+
+# Loading the pretrained word embeddings
+# Creating a tokenizer object
+# Transforming text documents to sequence of tokens and pad them
+# Create a mapping of token and their respective embeddings
+
+
 # Refer ( "https://www.kaggle.com/mmanishh/fast-text-word-embeddings" ) for Word-Embedding vectors file
+
 # load the pre-trained word-embedding vectors 
+
 embeddings_index = {}
 for i, line in enumerate(open('e:/Dell PC/Downloads/360 Digi TMG/Projects/Artificial Intelligence/Project_Root2AI Tech/wiki-news-300d-1M.vec', encoding="utf8")):
     values = line.split()
@@ -84,6 +96,23 @@ for word, i in word_index.items():
     if embedding_vector is not None:
         embedding_matrix[i] = embedding_vector
 
+
+# Text / NLP based features
+# A number of extra text based features can also be created which sometimes are helpful for improving text classification models. Some examples are:
+
+# 1. Word Count of the documents – total number of words in the documents
+# 2. Character Count of the documents – total number of characters in the documents
+# 3. Average Word Density of the documents – average length of the words used in the documents
+# 4. Puncutation Count in the Complete Essay – total number of punctuation marks in the documents
+# 5. Upper Case Count in the Complete Essay – total number of upper count words in the documents
+# 6. Title Word Count in the Complete Essay – total number of proper case (title) words in the documents
+
+# Frequency distribution of Part of Speech Tags:
+# 1. Noun Count
+# 2. Verb Count
+# 3. Adjective Count
+# 4. Adverb Count
+# 5. Pronoun Count
 
 
 
@@ -124,8 +153,7 @@ data['adj_count'] = data["Text"].apply(lambda x: check_pos_tag(x, 'adj'))
 data['adv_count'] = data["Text"].apply(lambda x: check_pos_tag(x, 'adv'))
 data['pron_count'] = data["Text"].apply(lambda x: check_pos_tag(x, 'pron'))
 
-
-
+ 
 
 # train a LDA Model
 lda_model = decomposition.LatentDirichletAllocation(n_components=20, learning_method='online', max_iter=20)
@@ -156,6 +184,18 @@ def train_model(classifier, feature_vector_train, label, feature_vector_valid, i
     return metrics.accuracy_score(predictions, valid_y)
 
 
+
+# The final step in the text classification framework is to train a classifier using the features created in the previous step. There are many different choices of machine learning models which can be used to train a final model. We will implement following different classifiers for this purpose:
+
+# 1. Naive Bayes Classifier
+# 2. Linear Classifier
+# 3. Support Vector Machine
+# 4. Bagging Models
+# 5. Boosting Models
+# 6. Shallow Neural Networks
+
+# Deep Neural Networks
+# 1. Convolutional Neural Network (CNN)
 
 
 
@@ -226,9 +266,7 @@ accuracy = train_model(xgboost.XGBClassifier(), xtrain_tfidf.tocsc(), train_y, x
 print ("Xgb, WordLevel TF-IDF: ", accuracy)
 
 # Extereme Gradient Boosting on Character Level TF IDF Vectors
-accuracy = train_model(xgboost.XGBClassifier(), xtrain_tfidf_ngram_chars.tocsc(), train_y, 
-
-xvalid_tfidf_ngram_chars.tocsc())
+accuracy = train_model(xgboost.XGBClassifier(), xtrain_tfidf_ngram_chars.tocsc(), train_y, xvalid_tfidf_ngram_chars.tocsc())
 print ("Xgb, CharLevel Vectors: ", accuracy)
 
 
@@ -257,7 +295,12 @@ print ("NN, Ngram Level TF IDF Vectors",  accuracy)
 
 
 
+#While the above framework can be applied to a number of text classification problems, but to achieve a good accuracy some improvements can be done in the overall framework. For example, following are some tips to improve the performance of text classification models and this framework.
 
+# 1. Text Cleaning 
+# 2. Hstacking Text / NLP features with text feature vectors 
+# 3. Hyperparamter Tuning in modelling 
+# 4. Ensemble Models
 
 
 
